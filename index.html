@@ -240,104 +240,111 @@
   <!-- 3D auto-animating dot field (no cursor)        -->
   <!-- ============================================= -->
   <script>
-  (function () {
-    const canvas = document.getElementById('dots');
-    const ctx = canvas.getContext('2d');
+(function () {
+  const canvas = document.getElementById('dots');
+  const ctx = canvas.getContext('2d');
 
-    let W, H, DPR;
-    let dots = [];
-    let t = 0;
+  let W, H, DPR;
+  let dots = [];
+  let startTime = performance.now();
 
-    const SPACING      = 34;    // distance between dots
-    const WAVE_AMP     = 6;     // how far dots travel
-    const WAVE_SPEED   = 1.2;   // speed of the traveling wave
-    const ROTATE_SPEED = 0.15;  // 3D rotation speed
-    const PERSPECTIVE  = 800;   // smaller = stronger 3D depth
+  const SPACING       = 34;    // distance between dots
+  const WAVE_AMP      = 6;     // how far dots travel
+  const WAVE_SPEED    = 1.2;   // speed of the traveling wave
+  const ROTATE_PERIOD = 40;    // seconds for one full 360° turn
+  const PERSPECTIVE   = 900;   // larger = flatter, smaller = stronger 3D
 
-    function resize() {
-      DPR = Math.min(window.devicePixelRatio || 1, 2);
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width = W * DPR;
-      canvas.height = H * DPR;
-      canvas.style.width = W + 'px';
-      canvas.style.height = H + 'px';
-      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      buildDots();
-    }
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    buildDots();
+  }
 
-    function buildDots() {
-      dots = [];
-      const cols = Math.ceil(W / SPACING) + 4;
-      const rows = Math.ceil(H / SPACING) + 4;
+  function buildDots() {
+    dots = [];
+    const cols = Math.ceil(W / SPACING) + 4;
+    const rows = Math.ceil(H / SPACING) + 4;
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const x = (c - cols / 2) * SPACING;
-          const y = (r - rows / 2) * SPACING;
-          const z = Math.sin(c * 0.3) * 30 + Math.cos(r * 0.25) * 30;
-          dots.push({ x, y, z, phase: c * 0.25 + r * 0.4 });
-        }
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = (c - cols / 2) * SPACING;
+        const y = (r - rows / 2) * SPACING;
+        const z = Math.sin(c * 0.3) * 30 + Math.cos(r * 0.25) * 30;
+        dots.push({ x, y, z, phase: c * 0.25 + r * 0.4 });
       }
     }
+  }
 
-    function project(x, y, z, cx, cy, cosA, sinA) {
-      const rx = x * cosA - z * sinA;
-      const rz = x * sinA + z * cosA;
-      const ry = y;
-      const scale = PERSPECTIVE / (PERSPECTIVE + rz);
-      return {
-        sx: cx + rx * scale,
-        sy: cy + ry * scale,
-        scale,
-      };
+  function project(x, y, z, cx, cy, cosA, sinA) {
+    // Rotate around Y axis
+    const rx = x * cosA - z * sinA;
+    const rz = x * sinA + z * cosA;
+    const ry = y;
+
+    // Keep the perspective denominator positive no matter what,
+    // so dots never "flip" or vanish when the plane turns past 90°.
+    const denom = PERSPECTIVE + rz;
+    const safe  = denom < 50 ? 50 : denom;   // clamp to avoid negatives / zero
+    const scale = PERSPECTIVE / safe;
+
+    return {
+      sx: cx + rx * scale,
+      sy: cy + ry * scale,
+      scale,
+    };
+  }
+
+  function frame(now) {
+    // t is in seconds since page load — grows forever, no reset
+    const t = (now - startTime) / 1000;
+
+    // Full 2π rotation every ROTATE_PERIOD seconds, smoothly looping
+    const angle = (t / ROTATE_PERIOD) * Math.PI * 2;
+    const cosA = Math.cos(angle);
+    const sinA = Math.sin(angle);
+
+    const bg = ctx.createRadialGradient(W / 2, H * 0.35, 0,
+                                        W / 2, H * 0.35, Math.max(W, H) * 0.8);
+    bg.addColorStop(0, '#141418');
+    bg.addColorStop(1, '#08080a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W / 2;
+    const cy = H / 2;
+
+    for (const d of dots) {
+      const wave  = Math.sin(t * WAVE_SPEED + d.phase);
+      const wave2 = Math.cos(t * WAVE_SPEED * 0.7 + d.phase * 0.5);
+
+      const wy = d.y + wave * WAVE_AMP;
+      const wz = d.z + wave2 * WAVE_AMP * 1.5;
+
+      const p = project(d.x, wy, wz, cx, cy, cosA, sinA);
+
+      if (p.sx < -50 || p.sx > W + 50 || p.sy < -50 || p.sy > H + 50) continue;
+
+      const depth = 0.4 + p.scale * 0.8;
+      const alpha = Math.min(0.9, 0.15 + Math.abs(wave) * 0.35) * depth;
+      const r = (0.9 + Math.abs(wave) * 0.6) * p.scale;
+
+      ctx.beginPath();
+      ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(245,245,247,${alpha})`;
+      ctx.fill();
     }
 
-    function frame() {
-      t += 0.016;
-      const angle = t * ROTATE_SPEED;
-      const cosA = Math.cos(angle);
-      const sinA = Math.sin(angle);
+    requestAnimationFrame(frame);
+  }
 
-      const bg = ctx.createRadialGradient(W / 2, H * 0.35, 0,
-                                          W / 2, H * 0.35, Math.max(W, H) * 0.8);
-      bg.addColorStop(0, '#141418');
-      bg.addColorStop(1, '#08080a');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, W, H);
-
-      const cx = W / 2;
-      const cy = H / 2;
-
-      for (const d of dots) {
-        const wave  = Math.sin(t * WAVE_SPEED + d.phase);
-        const wave2 = Math.cos(t * WAVE_SPEED * 0.7 + d.phase * 0.5);
-
-        const wy = d.y + wave * WAVE_AMP;
-        const wz = d.z + wave2 * WAVE_AMP * 1.5;
-
-        const p = project(d.x, wy, wz, cx, cy, cosA, sinA);
-
-        if (p.sx < -50 || p.sx > W + 50 || p.sy < -50 || p.sy > H + 50) continue;
-
-        const depth = 0.4 + p.scale * 0.8;
-        const alpha = Math.min(0.9, 0.15 + Math.abs(wave) * 0.35) * depth;
-        const r = (0.9 + Math.abs(wave) * 0.6) * p.scale;
-
-        ctx.beginPath();
-        ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(245,245,247,${alpha})`;
-        ctx.fill();
-      }
-
-      requestAnimationFrame(frame);
-    }
-
-    window.addEventListener('resize', resize);
-    resize();
-    frame();
-  })();
-  </script>
-
-</body>
-</html>
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
