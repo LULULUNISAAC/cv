@@ -3,41 +3,372 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My CV</title>
+<title>Welcome to my resume! — CV</title>
 <style>
-  body {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0b;
+    --panel: rgba(255, 255, 255, 0.04);
+    --text: #f5f5f7;
+    --muted: #8a8a92;
+    --border: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.28);
+    --hover: rgba(255, 255, 255, 0.08);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    max-width: 560px;
-    margin: 80px auto;
-    padding: 0 20px;
-    color: #161a20;
-    background: #f5f6f8;
-    line-height: 1.5;
+    line-height: 1.6;
+    overflow-x: hidden;
   }
-  h1 { margin-bottom: 4px; }
-  .sub { color: #5b6270; margin-top: 0; }
-  a.btn {
-    display: inline-block;
-    margin-top: 20px;
-    margin-right: 8px;
-    padding: 12px 22px;
-    background: #3562e0;
+
+  /* ===== 3D dot background canvas ===== */
+  #dots {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* Subtle radial vignette on top of the canvas */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 50% 40%, transparent 0%, rgba(10,10,11,0.55) 70%, rgba(10,10,11,0.95) 100%);
+  }
+
+  /* ===== Content ===== */
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 96px 24px 64px;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: #111114;
+    border: 1px solid var(--border-strong);
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #fff;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 600;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow:
+      0 0 0 8px rgba(255,255,255,0.02),
+      0 20px 40px rgba(0,0,0,0.6);
+    animation: float 6s ease-in-out infinite;
   }
-  a.btn.alt { background: #161a20; }
-  a.btn:hover { opacity: 0.9; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  /* ===== Buttons ===== */
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+  }
+  .row .btn { flex: 1; }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.15s ease, background 0.15s ease,
+                border-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background: var(--hover);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .btn:active { transform: translateY(0); }
+
+  .btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Primary button (bio) — white on black inverted */
+  .btn-primary {
+    background: #f5f5f7;
+    color: #0a0a0b;
+    border-color: #f5f5f7;
+  }
+  .btn-primary:hover {
+    background: #fff;
+    border-color: #fff;
+  }
+
+  /* GitHub — dark with outline */
+  .btn-github {
+    background: #16161a;
+    color: #f5f5f7;
+    border-color: rgba(255,255,255,0.18);
+  }
+  .btn-github:hover {
+    background: #1d1d22;
+    border-color: rgba(255,255,255,0.35);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 48px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .footer a {
+    color: var(--muted);
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.15s ease;
+  }
+  .footer a:hover { color: #fff; }
 </style>
 </head>
 <body>
-  <h1>Welcome to my resume!</h1>
-  <p class="sub">Isaac Lun · lwlisaaclun@gmail.com@</p>
 
-  <p>You can view or download my CV below.</p>
+  <!-- Animated 3D dot background -->
+  <canvas id="dots"></canvas>
+  <div class="vignette"></div>
 
-  <a class="btn" href="cv.pdf" target="_blank">📄 View CV</a>
-  <a class="btn alt" href="cv.pdf" download>⬇️ Download</a>
+  <div class="wrap">
+
+    <div class="avatar">YN</div>
+
+    <h1>Your Name</h1>
+    <p class="sub">Isaac Lun · lwlisaaclun@gmail.com</p>
+
+    <div class="buttons">
+
+      <!-- Bio button -->
+      <a class="btn btn-primary"
+         href="https://lululunisaac.github.io"
+         target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        Visit my website
+      </a>
+
+      <!-- GitHub button -->
+      <a class="btn btn-github"
+         href="https://github.com/LULULUNISAAC"
+         target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.68.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/>
+        </svg>
+        GitHub
+      </a>
+
+      <!-- CV: View + Download side by side -->
+      <div class="row">
+        <a class="btn"
+           href="cv.pdf"
+           target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View CV
+        </a>
+        <a class="btn"
+           href="cv.pdf"
+           download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download CV
+        </a>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <a href="https://linkedin.com/in/YOURUSERNAME" target="_blank" rel="noopener">LinkedIn</a>
+      ·
+      <a href="mailto:your@email.com">Email</a>
+    </div>
+
+  </div>
+
+  <!-- ============================================= -->
+  <!-- 3D animated dot field                          -->
+  <!-- ============================================= -->
+  <script>
+  (function () {
+    const canvas = document.getElementById('dots');
+    const ctx = canvas.getContext('2d');
+
+    let W, H, DPR;
+    let dots = [];
+    let mouse = { x: -9999, y: -9999 };
+    let t = 0;
+
+    // Wave of dots that "snakes" toward the cursor and drifts in 3D
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * DPR;
+      canvas.height = H * DPR;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      buildDots();
+    }
+
+    function buildDots() {
+      dots = [];
+      const spacing = 34; // distance between dots
+      const cols = Math.ceil(W / spacing) + 2;
+      const rows = Math.ceil(H / spacing) + 2;
+      const offsetX = (W - (cols - 1) * spacing) / 2;
+      const offsetY = (H - (rows - 1) * spacing) / 2;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          dots.push({
+            bx: offsetX + c * spacing,
+            by: offsetY + r * spacing,
+            x: 0, y: 0,
+            // per-dot phase so the wave looks organic
+            phase: (c * 0.35 + r * 0.55),
+          });
+        }
+      }
+    }
+
+    // Pseudo-3D: each dot is displaced by a sine wave that travels
+    // diagonally, and slightly attracted to the cursor.
+    function frame() {
+      t += 0.012;
+      ctx.clearRect(0, 0, W, H);
+
+      // Dark gradient base (subtle)
+      const bg = ctx.createRadialGradient(W / 2, H * 0.35, 0,
+                                          W / 2, H * 0.35, Math.max(W, H) * 0.8);
+      bg.addColorStop(0, '#141418');
+      bg.addColorStop(1, '#08080a');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      for (const d of dots) {
+        // traveling wave
+        const wave = Math.sin(t * 2 + d.phase);
+        const wave2 = Math.cos(t * 1.4 + d.phase * 0.7);
+
+        // cursor influence
+        const dx = d.bx - mouse.x;
+        const dy = d.by - mouse.y;
+        const dist = Math.hypot(dx, dy);
+        const influence = Math.max(0, 1 - dist / 220); // 0..1
+
+        // displacement: wave + cursor push
+        const push = influence * 14;
+        const angle = Math.atan2(dy, dx);
+
+        d.x = d.bx + wave * 4 + Math.cos(angle) * push;
+        d.y = d.by + wave2 * 4 + Math.sin(angle) * push;
+
+        // radius grows slightly with wave + cursor
+        const r = 1.1 + Math.abs(wave) * 0.6 + influence * 1.6;
+
+        // brightness
+        const alpha = 0.18 + Math.abs(wave) * 0.35 + influence * 0.5;
+
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(245,245,247,${alpha})`;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    // Cursor tracking
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = -9999; mouse.y = -9999;
+    });
+    // Touch support (mobile)
+    window.addEventListener('touchmove', (e) => {
+      const t0 = e.touches[0];
+      if (t0) { mouse.x = t0.clientX; mouse.y = t0.clientY; }
+    }, { passive: true });
+    window.addEventListener('touchend', () => {
+      mouse.x = -9999; mouse.y = -9999;
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    frame();
+  })();
+  </script>
+
 </body>
 </html>
